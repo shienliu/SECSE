@@ -21,7 +21,9 @@ def dock_by_glide(workdir, mols_smi, target, gen, dock_mode, cpu_num):
     with open(glide_out, "r") as glide:
         with open(sdf_path, "w") as sdf:
             for line in glide.readlines():
-                if line.startswith("> <r_i_glide_gscore>"):
+                # Schrodinger 2024 Glide produces an output SDF file in v3000 format. To improve compatibility,
+                # we have made minor updates to this version
+                if line.startswith("> <r_i_glide_gscore>") or line.startswith(">  <r_i_glide_gscore>"):
                     # write docking score
                     write_score = True
                     continue
@@ -29,7 +31,7 @@ def dock_by_glide(workdir, mols_smi, target, gen, dock_mode, cpu_num):
                     score = line.strip()
                     newline = "> <docking score>\n{}\n".format(score)
                     write_score = False
-                elif line.startswith("> <"):
+                elif line.startswith("> <") or line.startswith(">  <"):
                     # drop other fields
                     pass_line = 2
                     continue
